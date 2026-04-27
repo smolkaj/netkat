@@ -35,6 +35,8 @@
 
 namespace netkat {
 
+class NetkatTableBuilder;
+
 // Represents a prioritized match-action table of some networking switch using
 // NetKAT. Rules will be prioritized in descending order, i.e. higher is better.
 // Policy should generally limit matches and mutations of packets based on the
@@ -153,6 +155,10 @@ class NetkatTable {
   Policy GetPolicy() const&;
   Policy GetPolicy() &&;
 
+  // Returns a builder for modifying this table in-place.
+  NetkatTableBuilder TableBuilder() &;
+  NetkatTableBuilder TableBuilder() && = delete;
+
   // Returns a predicate representing the union of all matches in the table.
   // Note that this does not explicitly preserve the priority of the rules.
   //
@@ -178,6 +184,8 @@ class NetkatTable {
   static absl::StatusOr<NetkatTable> Merge(NetkatTable lhs, NetkatTable rhs);
 
  private:
+  friend class NetkatTableBuilder;
+
   // Whether the default action should be Accept or Deny.
   bool accept_default_;
 
